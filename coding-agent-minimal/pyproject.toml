@@ -9,6 +9,6 @@ dependencies = ["tess-core"]
 package = false
 
 # Tess Core comes from GitHub until it is on PyPI.
-# `uv sync --upgrade-package tess-core` moves to the newest commit.
+# `uv sync --upgrade-package tess-core --refresh` moves to the newest commit.
 [tool.uv.sources]
 tess-core = { git = "https://github.com/drost-ai/tess-core.git", branch = "main" }
