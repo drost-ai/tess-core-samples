@@ -52,8 +52,6 @@ class Printer:
     def __init__(self, style: Style) -> None:
         self.style = style
         self.children: dict[str, str] = {}  # task id -> the sub-agent's name
-        self.working: set[str] = set()  # sub-agents that have not sent their result yet
-        self.unread = False  # a sub-agent sent something the agent has not answered yet
         self.turn_id: str | None = None  # the turn now running, for Ctrl+C
         self.idle = asyncio.Event()  # set while no turn is running
         self.idle.set()
@@ -108,15 +106,11 @@ class Printer:
             self._line(s.yellow(f"[retry] {data.get('category') or 'provider'} · attempt {data.get('attempt')}"))
         elif event == "subagent.backgrounded":
             self.children[data.get("task_id") or ""] = str(data.get("label") or "sub-agent")
-            self.working.add(data.get("task_id") or "")
             self._line(s.child(f"◆ sub-agent {data.get('label')} started in the background"))
         elif event == "subagent.trace":
             self._child_step(data)
         elif event == "subagent.message":
             kind = "question" if data.get("kind") == "question" else "result"
-            self.unread = True
-            if kind == "result":
-                self.working.discard(data.get("task_id") or "")
             self._child_line(f"  [{self._name(data)}] {kind}: {clip(data.get('preview'), 160)}")
         elif event in ("turn.completed", "turn.failed", "turn.cancelled"):
             self._end_thinking()
@@ -126,7 +120,7 @@ class Printer:
                 self._line(s.red(clip(data.get("error"), 400)))
             note = f"— {reason} · {self._tokens[0]:,} in / {self._tokens[1]:,} out tok · {self._tools} tool calls"
             self._line((s.red if event == "turn.failed" else s.dim)(note))
-            self.turn_id, self.unread = None, False
+            self.turn_id = None
             self.idle.set()
             if self.at_prompt:
                 self._write(s.prompt("› "))  # the reader is still waiting on the prompt this output scrolled away
@@ -278,10 +272,9 @@ async def main() -> int:
                     continue
             await session.run_turn(request)
             if args.prompt:
-                # Sub-agents outlive the turn that started them. Stopping now would stop them
-                # too, so wait until each has reported and the agent has answered.
-                while printer.working or printer.unread or not printer.idle.is_set():
-                    await asyncio.sleep(0.5)
+                # Sub-agents outlive the turn that started them, and stopping the runtime
+                # stops them too: wait until each has reported and the agent has answered.
+                await runtime.wait_until_idle()
                 break
     finally:
         await runtime.stop()
