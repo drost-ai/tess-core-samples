@@ -64,10 +64,16 @@ class Printer:
         self._held: list[str] = []  # sub-agent lines waiting for the agent to finish a line of its own
         self._tokens = [0, 0]
         self._tools = 0
+        self._asked_at: float | None = None  # when the model was called and has not yet answered
 
     def handle(self, envelope: dict) -> None:
         event, data = envelope["event"], envelope["data"]
         s = self.style
+        if event == "provider.request_started":
+            self._asked_at = time.monotonic()
+            asyncio.get_running_loop().call_later(5, self._still_waiting, self._asked_at)
+        elif event.startswith(("message.assistant", "tool.", "provider.response", "turn.")):
+            self._asked_at = None  # the model is answering, or the turn is over
         if event == "turn.started":
             self.turn_id, self._tokens, self._tools = data.get("turn_id"), [0, 0], 0
             self.idle.clear()
@@ -116,12 +122,21 @@ class Printer:
             self._end_thinking()
             self._break()
             reason = data.get("stop_reason") or event.split(".")[1]
+            if event == "turn.failed" and data.get("error"):
+                self._line(s.red(clip(data.get("error"), 400)))
             note = f"— {reason} · {self._tokens[0]:,} in / {self._tokens[1]:,} out tok · {self._tools} tool calls"
             self._line((s.red if event == "turn.failed" else s.dim)(note))
             self.turn_id, self.unread = None, False
             self.idle.set()
             if self.at_prompt:
                 self._write(s.prompt("› "))  # the reader is still waiting on the prompt this output scrolled away
+
+    def _still_waiting(self, asked_at: float) -> None:
+        """A model can take a long time to start answering. Say so, so silence is not mistaken for a hang."""
+        if self._asked_at != asked_at:
+            return
+        self._line(self.style.dim(f"… waiting for the model ({time.monotonic() - asked_at:.0f}s)"))
+        asyncio.get_running_loop().call_later(15, self._still_waiting, asked_at)
 
     def _child_step(self, data: dict) -> None:
         """One line per thing a sub-agent does, in the sub-agent colour."""
