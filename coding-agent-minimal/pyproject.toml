@@ -1,0 +1,14 @@
+[project]
+name = "coding-agent-minimal"
+version = "0.1.0"
+description = "A terminal coding agent in one file, built on Tess Core."
+requires-python = ">=3.12"
+dependencies = ["tess-core"]
+
+[tool.uv]
+package = false
+
+# Tess Core comes from GitHub until it is on PyPI.
+# `uv sync --upgrade-package tess-core` moves to the newest commit.
+[tool.uv.sources]
+tess-core = { git = "https://github.com/drost-ai/tess-core.git", branch = "main" }

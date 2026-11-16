@@ -1,0 +1,76 @@
+# The models this agent can use. Pick one with --provider NAME; the first is the default.
+# Credentials are named here, never written down: each key comes from .env.
+schema_version: 1
+providerProfiles:
+
+  # A ChatGPT account, signed in with the Codex CLI. Needs CODEX_AUTH_PATH.
+  codex:
+    kind: openai
+    apiMode: codex
+    defaultModel: gpt-6.1-sol
+    reasoningEffort: xhigh
+    openAiChatReasoningSummary: auto
+    auth:
+      kind: openai_api_key_or_codex
+
+  # The OpenAI API.
+  gpt:
+    kind: openai
+    apiMode: responses
+    defaultModel: your-openai-model
+    openAiChatReasoningSummary: auto
+    auth:
+      kind: openai_api_key
+      envVar: OPENAI_API_KEY
+
+  # The Anthropic API.
+  claude:
+    kind: anthropic
+    defaultModel: claude-sonnet-5-5
+    anthropicThinkingDisplay: summarized
+    auth:
+      kind: anthropic_api_key
+      envVar: ANTHROPIC_API_KEY
+
+  # Kimi K3 on a coding plan: an Anthropic-compatible service.
+  kimi:
+    kind: anthropic
+    baseUrl: https://api.kimi.com/coding/v1
+    defaultModel: k3
+    reasoningEffort: max
+    anthropicThinkingDisplay: summarized
+    maxContextLength: 1000000
+    maxOutputTokens: 256000
+    requestStartTimeoutMs: 300000
+    streamIdleTimeoutMs: 300000
+    auth:
+      kind: anthropic_api_key
+      envVar: KIMI_API_KEY
+
+  # Z.ai GLM on a coding plan: an OpenAI-compatible service.
+  zai:
+    kind: openai
+    apiMode: chat_completions
+    baseUrl: https://api.z.ai/api/coding/paas/v4
+    defaultModel: GLM-5.3
+    reasoningEffort: max
+    openAiChatReasoningSummary: auto
+    maxContextLength: 1000000
+    maxOutputTokens: 128000
+    requestStartTimeoutMs: 300000
+    streamIdleTimeoutMs: 300000
+    capabilities:
+      imageInput: false
+    auth:
+      kind: custom_bearer
+      envVar: ZAI_API_KEY
+
+  # A model on your own machine: llama.cpp, vLLM, Ollama, LM Studio.
+  local:
+    kind: openai
+    apiMode: chat_completions
+    baseUrl: http://127.0.0.1:8080/v1
+    defaultModel: your-local-model
+    maxContextLength: 32000
+    auth:
+      kind: none
