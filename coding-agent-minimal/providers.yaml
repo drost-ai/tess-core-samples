@@ -52,7 +52,7 @@ providerProfiles:
     kind: openai
     apiMode: chat_completions
     baseUrl: https://api.z.ai/api/coding/paas/v4
-    defaultModel: GLM-5.3
+    defaultModel: GLM-5.3-flash
     reasoningEffort: max
     openAiChatReasoningSummary: auto
     maxContextLength: 1000000
@@ -74,3 +74,21 @@ providerProfiles:
     maxContextLength: 32000
     auth:
       kind: none
+
+  # DeepSeek: an OpenAI-compatible service.
+  deepseek:
+    kind: openai
+    apiMode: chat_completions
+    baseUrl: https://api.deepseek.com
+    defaultModel: deepseek-flash
+    reasoningEffort: max
+    openAiChatReasoningSummary: auto
+    maxContextLength: 1000000
+    maxOutputTokens: 128000
+    requestStartTimeoutMs: 300000
+    streamIdleTimeoutMs: 300000
+    capabilities:
+      imageInput: false
+    auth:
+      kind: custom_bearer
+      envVar: DEEPSEEK_API_KEY

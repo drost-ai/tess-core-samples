@@ -3,7 +3,7 @@
 A terminal coding agent in one file. You type a request; it reads and edits your project,
 runs commands, delegates to sub-agents, and shows every step as it happens.
 
-`agent.py` is about 280 lines, and most of them print. The agent itself is three calls into
+`agent.py` is about 290 lines, and most of them print. The agent itself is three calls into
 [Tess Core](https://github.com/drost-ai/tess-core): start a runtime, open a session, run a
 turn.
 
@@ -24,8 +24,8 @@ with the Codex CLI. To use another, name it:
 uv run agent.py --provider claude --cwd ~/path/to/your/project
 ```
 
-`providers.yaml` has profiles for Codex, the OpenAI and Anthropic APIs, Kimi, Z.ai and a
-local server. Edit the model names to ones your account serves.
+`providers.yaml` has profiles for Codex, the OpenAI and Anthropic APIs, Kimi, Z.ai, DeepSeek
+and a local server. Edit the model names to ones your account serves.
 
 ## What you see
 
