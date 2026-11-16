@@ -16,4 +16,4 @@ requires-dist = [{ name = "tess-core", git = "https://github.com/drost-ai/tess-c
 [[package]]
 name = "tess-core"
 version = "0.1.0"
-source = { git = "https://github.com/drost-ai/tess-core.git?branch=main#768a91d133817886ed3015bb56b3c58bc52d741b" }
+source = { git = "https://github.com/drost-ai/tess-core.git?branch=main#1439a750914d22003044247bddef47237d26942e" }
