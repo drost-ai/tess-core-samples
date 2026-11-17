@@ -75,19 +75,30 @@ providerProfiles:
     auth:
       kind: none
 
-  # DeepSeek: an OpenAI-compatible service.
-  deepseek:
+  # DeepSeek Flash: an OpenAI-compatible service that can see.
+  # Compaction keeps the conversation under 900,000 tokens: it starts at 675,000 (the
+  # threshold less 25% headroom) and writes a summary of up to 90,000 tokens.
+  deepseek-flash:
     kind: openai
     apiMode: chat_completions
     baseUrl: https://api.deepseek.com
     defaultModel: deepseek-flash
-    reasoningEffort: max
-    openAiChatReasoningSummary: auto
-    maxContextLength: 1000000
-    maxOutputTokens: 128000
-    requestStartTimeoutMs: 300000
-    streamIdleTimeoutMs: 300000
-    supportsVision: true
     auth:
       kind: custom_bearer
       envVar: DEEPSEEK_API_KEY
+    maxContextLength: 1000000
+    maxOutputTokens: 384000
+    compactionThresholdTokens: 900000
+    compactionOutputTokens: 90000
+    reasoningEffort: max
+    openAiChatReasoningSummary: auto
+    capabilities:
+      imageInput: true
+      imageMimeTypes:
+        - image/png
+        - image/jpeg
+        - image/webp
+        - image/gif
+      maxImageBytes: 5242880
+    requestStartTimeoutMs: 300000
+    streamIdleTimeoutMs: 300000
