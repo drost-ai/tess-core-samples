@@ -76,8 +76,9 @@ providerProfiles:
       kind: none
 
   # DeepSeek Flash: an OpenAI-compatible service that can see.
-  # Compaction keeps the conversation under 900,000 tokens: it starts at 675,000 (the
-  # threshold less 25% headroom) and writes a summary of up to 90,000 tokens.
+  # Compaction starts once the conversation passes compactionTargetTokens (900,000) and must
+  # finish before compactionThresholdTokens (950,000), which Tess Core requires to be higher.
+  # Its summary is at most 90,000 tokens.
   deepseek-flash:
     kind: openai
     apiMode: chat_completions
@@ -88,7 +89,8 @@ providerProfiles:
       envVar: DEEPSEEK_API_KEY
     maxContextLength: 1000000
     maxOutputTokens: 384000
-    compactionThresholdTokens: 900000
+    compactionTargetTokens: 900000
+    compactionThresholdTokens: 950000
     compactionOutputTokens: 90000
     reasoningEffort: max
     openAiChatReasoningSummary: auto
