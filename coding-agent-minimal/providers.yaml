@@ -87,8 +87,7 @@ providerProfiles:
     maxOutputTokens: 128000
     requestStartTimeoutMs: 300000
     streamIdleTimeoutMs: 300000
-    capabilities:
-      imageInput: false
+    supportsVision: true
     auth:
       kind: custom_bearer
       envVar: DEEPSEEK_API_KEY
